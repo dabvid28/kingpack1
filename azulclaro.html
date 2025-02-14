@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>King-Pack - Sistema Completo</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <!-- Agregando SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+    <style>
+        .sidebar-active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .main-content {
+            margin-left: 250px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+        .balance-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        .content-full {
+            margin-left: 0 !important;
+        }
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        .dashboard {
+            display: none;
+        }
+        .dashboard.visible {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Sistema de Autenticación -->
+    <div id="authSystem" class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md">
+            <!-- Formulario de Login -->
+            <div id="loginForm" class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-center mb-6">King-Pack</h2>
+                <form onsubmit="handleLogin(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
+                        <input type="email" id="loginEmail" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Contraseña</label>
+                        <input type="password" id="loginPassword" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <button type="submit" 
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                        Iniciar Sesión
+                    </button>
+                </form>
+                <p class="mt-4 text-center">
+                    <button onclick="toggleForms()" class="text-blue-600 hover:text-blue-800">
+                        ¿No tienes cuenta? Regístrate
+                    </button>
+                </p>
+            </div>
+
+            <!-- Formulario de Registro -->
+            <div id="registerForm" class="bg-white rounded-lg shadow-lg p-8 hidden">
+                <h2 class="text-2xl font-bold text-center mb-6">Registro - King-Pack</h2>
+                <form onsubmit="handleRegister(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Nombre Completo</label>
+                        <input type="text" id="registerName" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
+                        <input type="email" id="registerEmail" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <button type="submit" 
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                        Registrarse
+                    </button>
+                </form>
+                <p class="mt-4 text-center">
+                    <button onclick="toggleForms()" class="text-blue-600 hover:text-blue-800">
+                        ¿Ya tienes cuenta? Inicia sesión
+                    </button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard">
+        <!-- Botón Toggle Menu -->
+        <button id="toggleMenu" class="fixed top-4 left-4 z-50 bg-blue-900 text-white p-2 rounded-lg hover:bg-blue-800">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Barra lateral -->
+        <div class="fixed left-0 top-0 h-screen w-64 bg-blue-900 text-white p-4 sidebar">
+            <div class="mb-8">
+                <h1 class="text-2xl font-bold">King-Pack</h1>
+            </div>
+
+            <!-- Menú principal -->
+            <nav class="space-y-2">
+                <button onclick="cambiarSeccion('nuevo-envio')" class="menu-btn w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-800" data-codigo="NE001">
+                    <i class="fas fa-plus"></i>
+                    <span>Nuevo envío</span>
+                </button>
+                
+                <button onclick="cambiarSeccion('gestionar-envios')" class="menu-btn w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-800" data-codigo="GE002">
+                    <i class="fas fa-box"></i>
+                    <span>Gestionar envíos</span>
+                </button>
+                
+                <button onclick="cambiarSeccion('ordenes')" class="menu-btn w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-800" data-codigo="OR003">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Órdenes</span>
+                </button>
+                
+                <button onclick="cambiarSeccion('recolecciones')" class="menu-btn w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-800" data-codigo="RC005">
+                    <i class="fas fa-box-open"></i>
+                    <span>Recolecciones</span>
+                </button>
+            </nav>
+
+            <!-- Menú secundario -->
+            <div class="mt-8 space-y-2">
+                <button onclick="cambiarSeccion('finanzas')" class="menu-btn w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-800" data-codigo="GF007">
+                    <i class="fas fa-wallet"></i>
+                    <span>Gestionar finanzas</span>
+                </button>
+                
+                <button onclick="cambiarSeccion('configuraciones')" class="menu-btn w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-800" data-codigo="CF008">
+                    <i class="fas fa-cog"></i>
+                    <span>Configuraciones</span>
+                </button>
+                
+                <button onclick="cambiarSeccion('ayuda')" class="menu-btn w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-800" data-codigo="AY009">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Ayuda</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Contenido Principal -->
+        <div class="main-content p-8">
+            <!-- Sección Nuevo Envío -->
+            <div id="nuevo-envio" class="content-section active">
+                <div class="flex items-center gap-2 text-gray-600 mb-6">
+                    <i class="fas fa-box"></i>
+                    <span>Envíos</span>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                    <span>Nuevo Envío</span>
+                </div>
+
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-bold">Crear Nuevo Envío</h2>
+                    <div class="space-x-4">
+                        <button onclick="descartarCambios()" class="px-4 py-2 text-gray-600 hover:text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-times"></i>
+                            Descartar cambios
+                        </button>
+                        <button onclick="generarGuia()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                            <i class="fas fa-file-alt"></i>
+                            Generar Guía
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg">
+                    <div class="border-b p-4">
+                        <div class="flex items-center gap-4">
+                            <span class="w-8 h-8 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full">1</span>
+                            <h3 class="text-lg font-semibold">Información del Envío</h3>
+                        </div>
+                    </div>
+
+                    <form id="envioForm" class="p-6">
+                        <div class="grid grid-cols-2 gap-8">
+                            <!-- Remitente -->
+                            <div class="space-y-6">
+                                <h4 class="font-medium text-gray-700">Datos del Remitente</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre completo*</label>
+                                        <input type="text" id="remitente_nombre" required
+                                            class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Empresa</label>
+                                        <input type="text" id="remitente_empresa"
+                                            class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Email*</label>
+                                        <input type="email" id="remitente_email" required
+                                            class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono*</label>
+                                        <input type="tel" id="remitente_telefono" required
+                                            class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Dirección completa*</label>
+                                        <textarea id="remitente_direccion" required rows="3"
+                                            class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Código Postal*</label>
+                                        <input type="text" id="remitente_cp" required
+                                            class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Destinatario -->
+                            <div class="space-y-6">
+                                <h4 class="font-medium text-gray-700">Datos del Destinatario</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre completo*</label>
+                                        <input type="text" id="destinatario_nombre" required
+                                            class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Empresa</label>
+                                        <input type="text" id="destinatario_empresa"
+                                            class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Email*</label>
+                                        <input type="email" id="destinatario_email" required
+                                            class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono*</label>
+                                        <input type="tel" id="destinatario_telefono" required
+                                            class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Dirección completa*</label>
+                                        <textarea id="destinatario_direccion" required rows="3"
+                                            class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Código Postal*</label>
+                                        <input type="text" id="destinatario_cp" required
+                                            class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Detalles del Paquete -->
+                        <div class="mt-8 pt-8 border-t">
+                            <div class="flex items-center gap-4 mb-6">
+                                <span class="w-8 h-8 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full">2</span>
+                                <h3 class="text-lg font-semibold">Detalles del Paquete</h3>
+                            </div>
+
+                            <div class="grid grid-cols-4 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de empaque*</label>
+                                    <select id="tipo_empaque" required class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="caja">Caja</option>
+                                        <option value="sobre">Sobre</option>
+                                        <option value="paquete">Paquete</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Peso (kg)*</label>
+                                    <input type="number" id="peso" required step="0.01" min="0"
+                                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Valor declarado (MXN)</label>
+                                    <input type="number" id="valor_declarado" min="0"
+                                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Referencia</label>
+                                    <input type="text" id="referencia"
+                                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-4 gap-6 mt-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Largo (cm)*</label>
+                                    <input type="number" id="largo" required min="0"
+                                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Ancho (cm)*</label>
+                                    <input type="number" id="ancho" required min="0"
+                                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Alto (cm)*</label>
+                                    <input type="number" id="alto" required min="0"
+                                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Contenido*</label>
+                                    <input type="text" id="contenido" required
+                                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Selección de Servicio -->
+                        <div class="mt-8 pt-8 border-t">
+                            <div class="flex items-center gap-4 mb-6">
+                                <span class="w-8 h-8 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full">3</span>
+                                <h3 class="text-lg font-semibold">Selección de Servicio</h3>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-6">
+                                <!-- FedEx Express -->
+                                <div class="border rounded-lg p-4 hover:border-blue-500 cursor-pointer" onclick="seleccionarServicio('fedex_express', this)">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <img src="/api/placeholder/80/40" alt="FedEx" class="h-10">
+                                        <input type="radio" name="servicio" value="fedex_express">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <p class="font-medium">FedEx Express</p>
+                                        <p class="text-sm text-gray-600">Entrega al siguiente día hábil</p>
+                                        <p class="font-bold text-lg">$459.00 MXN</p>
+                                    </div>
+                                </div>
+
+                                <!-- FedEx Priority -->
+                                <div class="border rounded-lg p-4 hover:border-blue-500 cursor-pointer" onclick="seleccionarServicio('fedex_priority', this)">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <img src="/api/placeholder/80/40" alt="FedEx" class="h-10">
+                                        <input type="radio" name="servicio" value="fedex_priority">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <p class="font-medium">FedEx Priority</p>
+                                        <p class="text-sm text-gray-600">Entrega en 2-3 días hábiles</p>
+                                        <p class="font-bold text-lg">$299.00 MXN</p>
+                                    </div>
+                                </div>
+
+                                <!-- FedEx Económico -->
+                                <div class="border rounded-lg p-4 hover:border-blue-500 cursor-pointer" onclick="seleccionarServicio('fedex_economico', this)">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <img src="/api/placeholder/80/40" alt="FedEx" class="h-10">
+                                        <input type="radio" name="servicio" value="fedex_economico">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <p class="font-medium">FedEx Económico</p>
+                                        <p class="text-sm text-gray-600">Entrega en 3-5 días hábiles</p>
+                                        <p class="font-bold text-lg">$259.00 MXN</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sección Gestionar Envíos -->
+            <div id="gestionar-envios" class="content-section">
+                <!-- Contenido de gestión de envíos aquí -->
+            </div>
+
+            <!-- Otras secciones aquí -->
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let currentUser = null;
+        let userPassword = null;
+        let selectedService = null;
+        let shippingData = {
+            remitente: {},
+            destinatario: {},
+            paquete: {},
+            servicio: null
+        };
+
+        // Funciones de autenticación
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (email && password) {
+                currentUser = { email, name: email.split('@')[0] };
+                showDashboard();
+            } else {
+                alert('Por favor complete todos los campos');
+            }
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+
+            userPassword = generateUniquePassword();
+            currentUser = { name, email };
+            
+            alert(`Registro exitoso. Tu contraseña es: ${userPassword}`);
+            toggleForms();
+        }
+
+        function generateUniquePassword() {
+            const length = 12;
+            const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * charset.length);
+                password += charset[randomIndex];
+            }
+            return password;
+        }
+
+        function toggleForms() {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            loginForm.classList.toggle('hidden');
+            registerForm.classList.toggle('hidden');
+        }
+
+        function showDashboard() {
+            document.getElementById('authSystem').style.display = 'none';
+            document.getElementById('dashboard').classList.add('visible');
+        }
+
+        // Funciones de navegación
+        function cambiarSeccion(seccionId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.getElementById(seccionId).classList.add('active');
+            
+            document.querySelectorAll('.menu-btn').forEach(btn => {
+                btn.classList.remove('sidebar-active');
+            });
+            event.currentTarget.classList.add('sidebar-active');
+        }
+
+        function initializeMenuToggle() {
+            const toggleButton = document.getElementById('toggleMenu');
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+
+            toggleButton.addEventListener('click', () => {
+                sidebar.classList.toggle('sidebar-hidden');
+                mainContent.classList.toggle('content-full');
+                
+                const icon = toggleButton.querySelector('i');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            });
+        }
+
+        // Funciones de formulario
+        function descartarCambios() {
+            document.getElementById('envioForm').reset();
+        }
+
+        function guardarOrden() {
+            // Implementar lógica para guardar orden
+            alert('Orden guardada exitosamente');
+        }
+
+        // Funciones para el manejo del envío
+        function seleccionarServicio(servicioId, element) {
+            // Remover selección previa
+            document.querySelectorAll('[name="servicio"]').forEach(radio => {
+                radio.checked = false;
+                radio.closest('.border').classList.remove('border-blue-500');
+            });
+
+            // Seleccionar nuevo servicio
+            const radio = element.querySelector('input[type="radio"]');
+            radio.checked = true;
+            element.classList.add('border-blue-500');
+            selectedService = servicioId;
+        }
+
+        function validarFormulario() {
+            const form = document.getElementById('envioForm');
+            const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+            let isValid = true;
+
+            inputs.forEach(input => {
+                if (!input.value) {
+                    input.classList.add('border-red-500');
+                    isValid = false;
+                } else {
+                    input.classList.remove('border-red-500');
+                }
+            });
+
+            if (!selectedService) {
+                alert('Por favor seleccione un servicio de envío');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function recolectarDatos() {
+            shippingData.remitente = {
+                nombre: document.getElementById('remitente_nombre').value,
+                empresa: document.getElementById('remitente_empresa').value,
+                email: document.getElementById('remitente_email').value,
+                telefono: document.getElementById('remitente_telefono').value,
+                direccion: document.getElementById('remitente_direccion').value,
+                cp: document.getElementById('remitente_cp').value
+            };
+
+            shippingData.destinatario = {
+                nombre: document.getElementById('destinatario_nombre').value,
+                empresa: document.getElementById('destinatario_empresa').value,
+                email: document.getElementById('destinatario_email').value,
+                telefono: document.getElementById('destinatario_telefono').value,
+                direccion: document.getElementById('destinatario_direccion').value,
+                cp: document.getElementById('destinatario_cp').value
+            };
+
+            shippingData.paquete = {
+                tipo: document.getElementById('tipo_empaque').value,
+                peso: document.getElementById('peso').value,
+                valor: document.getElementById('valor_declarado').value,
+                referencia: document.getElementById('referencia').value,
+                largo: document.getElementById('largo').value,
+                ancho: document.getElementById('ancho').value,
+                alto: document.getElementById('alto').value,
+                contenido: document.getElementById('contenido').value
+            };
+
+            shippingData.servicio = selectedService;
+        }
+
+        // Configuración de SoloEnvíos API
+        const SOLOENVIOS_CONFIG = {
+            CLIENT_ID: 'euYOQ1I0IWnT09Yq9OIdE45zwRvtchv4l6pkZzUZ3g4',
+            CLIENT_SECRET: 'nFLwvIS2SR5rMAIQrOrIG0ZMczuYS1gi4ywIDXxOf94',
+            API_URL: 'https://app.soloenvios.com/api/v1',
+            access_token: null,
+            token_expires_at: null
+        };
+
+        let isProcessing = false;
+
+        // Función para verificar y renovar el token si es necesario
+        async function ensureValidToken() {
+            try {
+                if (!SOLOENVIOS_CONFIG.access_token || isTokenExpired()) {
+                    await getAccessToken();
+                } else {
+                    // Verificar estado del token
+                    const isValid = await verifyToken();
+                    if (!isValid) {
+                        await getAccessToken();
+                    }
+                }
+                return true;
+            } catch (error) {
+                console.error('Error en la autenticación:', error);
+                mostrarError('Error de autenticación. Por favor, intente nuevamente.');
+                return false;
+            }
+        }
+
+        // Función para obtener el token de acceso
+        async function getAccessToken() {
+            try {
+                const formData = new URLSearchParams();
+                formData.append('grant_type', 'client_credentials');
+                formData.append('client_id', SOLOENVIOS_CONFIG.CLIENT_ID);
+                formData.append('client_secret', SOLOENVIOS_CONFIG.CLIENT_SECRET);
+
+                const response = await fetch(`${SOLOENVIOS_CONFIG.API_URL}/oauth/token`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error de autenticación: ${response.status}`);
+                }
+
+                const data = await response.json();
+                SOLOENVIOS_CONFIG.access_token = data.access_token;
+                SOLOENVIOS_CONFIG.token_expires_at = Date.now() + (data.expires_in * 1000);
+                return true;
+            } catch (error) {
+                console.error('Error al obtener token:', error);
+                throw error;
+            }
+        }
+
+        // Verificar token
+        async function verifyToken() {
+            try {
+                const response = await fetch(`${SOLOENVIOS_CONFIG.API_URL}/oauth/introspect`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SOLOENVIOS_CONFIG.access_token}`
+                    }
+                });
+
+                const data = await response.json();
+                return data.active === true;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        // Verificar si el token ha expirado
+        function isTokenExpired() {
+            return !SOLOENVIOS_CONFIG.token_expires_at || 
+                   Date.now() >= SOLOENVIOS_CONFIG.token_expires_at - 60000; // 1 minuto antes
+        }
+
+        // Función para mostrar errores al usuario
+        function mostrarError(mensaje) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: mensaje,
+                confirmButtonText: 'Entendido'
+            });
+        }
+
+        // Función para mostrar éxito
+        function mostrarExito(mensaje) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: mensaje,
+                confirmButtonText: 'OK'
+            });
+        }
+
+        // Función para mostrar carga
+        function mostrarCarga(mensaje = 'Procesando...') {
+            Swal.fire({
+                title: mensaje,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+
+        // Función para cerrar mensaje de carga
+        function cerrarCarga() {
+            Swal.close();
+        }
+
+        // Función principal para cotizar envío
+        async function cotizarEnvio() {
+            if (isProcessing) return;
+            if (!validarFormulario()) return;
+
+            isProcessing = true;
+            mostrarCarga('Calculando cotización...');
+
+            try {
+                if (!await ensureValidToken()) {
+                    isProcessing = false;
+                    return;
+                }
+
+                const datosCotizacion = prepararDatosCotizacion();
+                const response = await fetch(`${SOLOENVIOS_CONFIG.API_URL}/quotes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SOLOENVIOS_CONFIG.access_token}`
+                    },
+                    body: JSON.stringify(datosCotizacion)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al cotizar');
+                }
+
+                actualizarInterfazCotizacion(data);
+                cerrarCarga();
+            } catch (error) {
+                console.error('Error en cotización:', error);
+                mostrarError('Error al cotizar el envío. Por favor, verifique los datos e intente nuevamente.');
+            } finally {
+                isProcessing = false;
+            }
+        }
+
+        // Función principal para generar guía
+        // Función para generar guía con debugging
+        async function generarGuia() {
+            if (isProcessing) {
+                console.log('Ya hay un proceso en curso');
+                return;
+            }
+            
+            console.log('Iniciando generación de guía...');
+            
+            if (!validarFormulario()) {
+                console.log('Error en validación del formulario');
+                return;
+            }
+
+            isProcessing = true;
+            mostrarCarga('Generando guía...');
+
+            try {
+                console.log('Verificando token...');
+                if (!await ensureValidToken()) {
+                    console.log('Error en la autenticación');
+                    isProcessing = false;
+                    return;
+                }
+
+                console.log('Preparando datos de la guía...');
+                const datosGuia = prepararDatosGuia();
+                console.log('Datos preparados:', datosGuia);
+
+                console.log('Enviando solicitud a SoloEnvíos...');
+                const response = await fetch(`${SOLOENVIOS_CONFIG.API_URL}/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SOLOENVIOS_CONFIG.access_token}`
+                    },
+                    body: JSON.stringify(datosGuia)
+                });
+
+                console.log('Respuesta recibida:', response.status);
+                const data = await response.json();
+                console.log('Datos de respuesta:', data);
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al generar guía');
+                }
+
+                // Guardar en el historial
+                guardarEnHistorial(data);
+                console.log('Guardado en historial');
+                
+                // Mostrar éxito y ofrecer descargar PDF
+                mostrarExito('¡Guía generada exitosamente!');
+                
+                // Descargar PDF automáticamente
+                if (data.label_url) {
+                    window.open(data.label_url, '_blank');
+                }
+
+                // Limpiar formulario
+                document.getElementById('envioForm').reset();
+                
+            } catch (error) {
+                console.error('Error detallado:', error);
+                mostrarError(`Error al generar la guía: ${error.message}`);
+            } finally {
+                isProcessing = false;
+                cerrarCarga();
+            }
+        }
+
+        // Función para validar el formulario con más detalle
+        function validarFormulario() {
+            const camposRequeridos = [
+                'remitente_nombre',
+                'remitente_email',
+                'remitente_telefono',
+                'remitente_direccion',
+                'remitente_cp',
+                'destinatario_nombre',
+                'destinatario_email',
+                'destinatario_telefono',
+                'destinatario_direccion',
+                'destinatario_cp',
+                'peso',
+                'largo',
+                'ancho',
+                'alto',
+                'contenido'
+            ];
+
+            let isValid = true;
+            let camposFaltantes = [];
+
+            camposRequeridos.forEach(campo => {
+                const elemento = document.getElementById(campo);
+                if (!elemento || !elemento.value.trim()) {
+                    isValid = false;
+                    camposFaltantes.push(campo);
+                    elemento?.classList.add('border-red-500');
+                } else {
+                    elemento.classList.remove('border-red-500');
+                }
+            });
+
+            if (!isValid) {
+                console.log('Campos faltantes:', camposFaltantes);
+                mostrarError(`Por favor complete los siguientes campos: ${camposFaltantes.join(', ')}`);
+                return false;
+            }
+
+            // Validar formato de email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const remitente_email = document.getElementById('remitente_email').value;
+            const destinatario_email = document.getElementById('destinatario_email').value;
+
+            if (!emailRegex.test(remitente_email) || !emailRegex.test(destinatario_email)) {
+                mostrarError('Por favor ingrese direcciones de email válidas');
+                return false;
+            }
+
+            // Validar números
+            const numericos = ['peso', 'largo', 'ancho', 'alto'];
+            for (const campo of numericos) {
+                const valor = parseFloat(document.getElementById(campo).value);
+                if (isNaN(valor) || valor <= 0) {
+                    mostrarError(`El campo ${campo} debe ser un número mayor a 0`);
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // Función para preparar datos de cotización
+        function prepararDatosCotizacion() {
+            return {
+                origin_zip: document.getElementById('remitente_cp').value,
+                destination_zip: document.getElementById('destinatario_cp').value,
+                package: {
+                    weight: parseFloat(document.getElementById('peso').value),
+                    length: parseFloat(document.getElementById('largo').value),
+                    width: parseFloat(document.getElementById('ancho').value),
+                    height: parseFloat(document.getElementById('alto').value),
+                    declared_value: parseFloat(document.getElementById('valor_declarado').value || 0)
+                }
+            };
+        }
+
+        // Función para preparar datos de guía
+        function prepararDatosGuia() {
+            return {
+                order: {
+                    reference: `REF-${Date.now()}`,
+                    total_price: document.getElementById('valor_declarado').value,
+                    service_id: selectedService,
+                    address_from: {
+                        name: document.getElementById('remitente_nombre').value,
+                        company: document.getElementById('remitente_empresa').value,
+                        email: document.getElementById('remitente_email').value,
+                        phone: document.getElementById('remitente_telefono').value,
+                        street: document.getElementById('remitente_direccion').value,
+                        postal_code: document.getElementById('remitente_cp').value
+                    },
+                    address_to: {
+                        name: document.getElementById('destinatario_nombre').value,
+                        company: document.getElementById('destinatario_empresa').value,
+                        email: document.getElementById('destinatario_email').value,
+                        phone: document.getElementById('destinatario_telefono').value,
+                        street: document.getElementById('destinatario_direccion').value,
+                        postal_code: document.getElementById('destinatario_cp').value
+                    },
+                    package: {
+                        weight: parseFloat(document.getElementById('peso').value),
+                        length: parseFloat(document.getElementById('largo').value),
+                        width: parseFloat(document.getElementById('ancho').value),
+                        height: parseFloat(document.getElementById('alto').value),
+                        declared_value: parseFloat(document.getElementById('valor_declarado').value || 0),
+                        description: document.getElementById('contenido').value
+                    }
+                }
+            };
+        }
+
+        // Función para obtener el token de acceso
+        async function getAccessToken() {
+            try {
+                const response = await fetch(`${SOLOENVIOS_CONFIG.API_URL}/oauth/token`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `grant_type=client_credentials&client_id=${SOLOENVIOS_CONFIG.CLIENT_ID}&client_secret=${SOLOENVIOS_CONFIG.CLIENT_SECRET}`
+                });
+
+                const data = await response.json();
+                if (data.access_token) {
+                    SOLOENVIOS_CONFIG.access_token = data.access_token;
+                    return data.access_token;
+                } else {
+                    throw new Error('No se pudo obtener el token de acceso');
+                }
+            } catch (error) {
+                console.error('Error al obtener el token:', error);
+                throw error;
+            }
+        }
+
+        // Función para hacer llamadas a la API de SoloEnvíos
+        async function callSoloEnviosAPI(endpoint, method = 'GET', data = null) {
+            if (!SOLOENVIOS_CONFIG.access_token) {
+                await getAccessToken();
+            }
+            try {
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${SOLOENVIOS_CONFIG.API_KEY}`,
+                    'X-API-Secret': SOLOENVIOS_CONFIG.API_SECRET
+                };
+
+                const config = {
+                    method: method,
+                    headers: headers,
+                    body: data ? JSON.stringify(data) : null
+                };
+
+                const response = await fetch(`${SOLOENVIOS_CONFIG.API_URL}/${endpoint}`, config);
+                return await response.json();
+            } catch (error) {
+                console.error('Error en llamada a SoloEnvíos:', error);
+                throw error;
+            }
+        }
+
+        // Función para cotizar envío
+        async function cotizarEnvio() {
+            if (!validarFormulario()) return;
+
+            const datos = {
+                origen: {
+                    codigo_postal: document.getElementById('remitente_cp').value,
+                },
+                destino: {
+                    codigo_postal: document.getElementById('destinatario_cp').value,
+                },
+                paquete: {
+                    peso: parseFloat(document.getElementById('peso').value),
+                    largo: parseFloat(document.getElementById('largo').value),
+                    ancho: parseFloat(document.getElementById('ancho').value),
+                    alto: parseFloat(document.getElementById('alto').value),
+                    valor_declarado: parseFloat(document.getElementById('valor_declarado').value || 0)
+                }
+            };
+
+            try {
+                const cotizacion = await callSoloEnviosAPI('cotizaciones', 'POST', datos);
+                mostrarCotizacion(cotizacion);
+            } catch (error) {
+                alert('Error al cotizar el envío. Por favor intente nuevamente.');
+                console.error(error);
+            }
+        }
+
+        // Función para generar guía
+        async function generarGuia() {
+            if (!validarFormulario()) return;
+
+            recolectarDatos();
+            
+            const datosGuia = {
+                order: {
+                    reference: shippingData.paquete.referencia,
+                    reference_number: `REF-${Date.now()}`,
+                    total_price: shippingData.paquete.valor_declarado,
+                    address_from: {
+                        name: shippingData.remitente.nombre,
+                        company: shippingData.remitente.empresa,
+                        email: shippingData.remitente.email,
+                        phone: shippingData.remitente.telefono,
+                        street: shippingData.remitente.direccion,
+                        postal_code: shippingData.remitente.cp
+                    },
+                    address_to: {
+                        name: shippingData.destinatario.nombre,
+                        company: shippingData.destinatario.empresa,
+                        email: shippingData.destinatario.email,
+                        phone: shippingData.destinatario.telefono,
+                        street: shippingData.destinatario.direccion,
+                        postal_code: shippingData.destinatario.cp
+                    },
+                    package: {
+                        type: shippingData.paquete.tipo,
+                        weight: parseFloat(shippingData.paquete.peso),
+                        length: parseFloat(shippingData.paquete.largo),
+                        width: parseFloat(shippingData.paquete.ancho),
+                        height: parseFloat(shippingData.paquete.alto),
+                        declared_value: parseFloat(shippingData.paquete.valor_declarado),
+                        description: shippingData.paquete.contenido
+                    }
+                }
+            };
+
+            try {
+                const respuesta = await callSoloEnviosAPI('guias', 'POST', datosGuia);
+                
+                if (respuesta.success) {
+                    alert(`¡Guía generada exitosamente! Número de rastreo: ${respuesta.tracking_number}`);
+                    guardarEnHistorial({...shippingData, tracking: respuesta.tracking_number});
+                    document.getElementById('envioForm').reset();
+                    selectedService = null;
+                } else {
+                    throw new Error(respuesta.message || 'Error al generar la guía');
+                }
+            } catch (error) {
+                alert('Error al generar la guía. Por favor intente nuevamente.');
+                console.error(error);
+            }
+        }
+
+        function mostrarCotizacion(cotizacion) {
+            // Actualizar los precios mostrados en la interfaz
+            const servicios = document.querySelectorAll('.servicio-precio');
+            cotizacion.servicios.forEach((servicio, index) => {
+                if (servicios[index]) {
+                    servicios[index].textContent = `${servicio.precio.toFixed(2)} MXN`;
+                }
+            });
+        }
+
+        function guardarEnHistorial(datos) {
+            let historial = JSON.parse(localStorage.getItem('historial_envios') || '[]');
+            datos.fecha = new Date().toISOString();
+            datos.id = 'ENV-' + Date.now();
+            historial.unshift(datos);
+            localStorage.setItem('historial_envios', JSON.stringify(historial));
+        }
+
+        function descartarCambios() {
+            if (confirm('¿Está seguro de descartar los cambios? Esta acción no se puede deshacer.')) {
+                document.getElementById('envioForm').reset();
+                selectedService = null;
+                document.querySelectorAll('[name="servicio"]').forEach(radio => {
+                    radio.checked = false;
+                    radio.closest('.border').classList.remove('border-blue-500');
+                });
+            }
+        }
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            if (currentUser) {
+                showDashboard();
+            }
+            initializeMenuToggle();
+
+            // Agregar validación en tiempo real
+            const inputs = document.querySelectorAll('input[required], select[required], textarea[required]');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (!this.value) {
+                        this.classList.add('border-red-500');
+                    } else {
+                        this.classList.remove('border-red-500');
+                    }
+                });
+            });
+
+            // Calcular volumen y peso volumétrico automáticamente
+            ['largo', 'ancho', 'alto', 'peso'].forEach(id => {
+                document.getElementById(id).addEventListener('input', calcularPesoVolumetrico);
+            });
+        });
+
+        function calcularPesoVolumetrico() {
+            const largo = parseFloat(document.getElementById('largo').value) || 0;
+            const ancho = parseFloat(document.getElementById('ancho').value) || 0;
+            const alto = parseFloat(document.getElementById('alto').value) || 0;
+            const peso = parseFloat(document.getElementById('peso').value) || 0;
+
+            const volumen = largo * ancho * alto;
+            const pesoVolumetrico = volumen / 5000; // Factor estándar de FedEx
+
+            console.log(`Volumen: ${volumen}cm³, Peso Volumétrico: ${pesoVolumetrico}kg, Peso Real: ${peso}kg`);
+            // Aquí puedes agregar lógica para actualizar precios según el peso mayor
+        }
+    </script>
+</body>
+</html>
