@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "echo 'No build step required'"
   },
   "dependencies": {
     "express": "^4.21.2"
   }
-}
+}git init
+git add .
+git commit -m "Primer commit para Netlify"
