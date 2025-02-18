@@ -1,0 +1,11 @@
+echo [build] > netlify.toml
+echo   command = "npm install" >> netlify.toml
+echo   functions = "functions" >> netlify.toml
+echo   publish = "." >> netlify.toml
+echo [functions] >> netlify.toml
+echo   external_node_modules = ["express"] >> netlify.toml
+echo   node_bundler = "esbuild" >> netlify.toml
+echo [[redirects]] >> netlify.toml
+echo   from = "/api/*" >> netlify.toml
+echo   to = "/.netlify/functions/:splat" >> netlify.toml
+echo   status = 200 >> netlify.toml
